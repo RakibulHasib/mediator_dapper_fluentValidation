@@ -1,13 +1,15 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
 
-namespace Test_project.Entity
+namespace Test_project.Entity;
+
+public partial class Employee
 {
-    public class Employee
-    {
-        [Key]
-        public int EmployeeID { get; set; }
-        public string? EmployeeName { get; set; }
-        public int Age { get; set; }
-        public DateTime DOB { get; set; }
-    }
+    public int EmployeeId { get; set; }
+
+    public string EmployeeName { get; set; } = null!;
+
+    public int Age { get; set; }
+
+    public DateTime Dob { get; set; }
 }

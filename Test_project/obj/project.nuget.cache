@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "YX+0+1wC5zvip7r7+gzhOZlem851UIpRVFGq3YVIlFM/8qxwS5ys6tja3kA8E5TUq7c31gaeKRtZQ/TrHOBaww==",
+  "dgSpecHash": "1L8LdnEqebhBq+zVrDmaVDwT7WydY993uGuXL1Jhvu9YpllkRctU7OWR//PmrJuAQ90wIFFIwle95iNyrqyvpA==",
   "success": true,
   "projectFilePath": "D:\\Eye Electronics\\Rakim_office\\mediator_dapper_fluentValidation\\Test_project\\Test_project.csproj",
   "expectedPackageFiles": [
@@ -14,6 +14,7 @@
     "C:\\Users\\hp\\.nuget\\packages\\mediatr\\11.0.0\\mediatr.11.0.0.nupkg.sha512",
     "C:\\Users\\hp\\.nuget\\packages\\mediatr.contracts\\1.0.1\\mediatr.contracts.1.0.1.nupkg.sha512",
     "C:\\Users\\hp\\.nuget\\packages\\mediatr.extensions.microsoft.dependencyinjection\\11.1.0\\mediatr.extensions.microsoft.dependencyinjection.11.1.0.nupkg.sha512",
+    "C:\\Users\\hp\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\7.0.14\\microsoft.aspnetcore.authentication.jwtbearer.7.0.14.nupkg.sha512",
     "C:\\Users\\hp\\.nuget\\packages\\microsoft.aspnetcore.openapi\\7.0.14\\microsoft.aspnetcore.openapi.7.0.14.nupkg.sha512",
     "C:\\Users\\hp\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\1.1.1\\microsoft.bcl.asyncinterfaces.1.1.1.nupkg.sha512",
     "C:\\Users\\hp\\.nuget\\packages\\microsoft.csharp\\4.5.0\\microsoft.csharp.4.5.0.nupkg.sha512",

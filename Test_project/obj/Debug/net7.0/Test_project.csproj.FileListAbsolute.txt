@@ -236,3 +236,4 @@ D:\Eye Electronics\Rakim_office\mediator_dapper_fluentValidation\Test_project\ob
 D:\Eye Electronics\Rakim_office\mediator_dapper_fluentValidation\Test_project\obj\Debug\net7.0\Test_project.pdb
 D:\Eye Electronics\Rakim_office\mediator_dapper_fluentValidation\Test_project\obj\Debug\net7.0\Test_project.genruntimeconfig.cache
 D:\Eye Electronics\Rakim_office\mediator_dapper_fluentValidation\Test_project\obj\Debug\net7.0\ref\Test_project.dll
+D:\Eye Electronics\Rakim_office\mediator_dapper_fluentValidation\Test_project\bin\Debug\net7.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
