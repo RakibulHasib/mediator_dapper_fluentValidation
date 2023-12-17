@@ -4,12 +4,12 @@ using Microsoft.AspNetCore.Mvc;
 using Test_project.Attributes;
 using Test_project.Entity;
 using Test_project.Mediator;
-
 namespace Test_project.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(roles:"Admin")]
+    
     public class EmployeeController : ControllerBase
     {
         private readonly IMediator _mediator;

@@ -6,7 +6,7 @@ using System.Text;
 using Test_project.Context;
 using Test_project.Controllers;
 using Test_project.Entity;
-using Test_project.Folder;
+using Test_project.Services;
 
 namespace Test_project.Middleware
 {
@@ -21,19 +21,19 @@ namespace Test_project.Middleware
 
         public async Task Invoke(HttpContext context, UserService _user)
         {
-            string? token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+            //string? token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
 
-            int? UserID = _user.ValidateToken(token);
+            //var? UserID = _user.ValidateToken(token);
 
-            if (UserID != null)
-            {
-                context.Items["User"] = UserID;
-                Claim claim = new Claim(ClaimTypes.Name, UserID.ToString() ?? "0");
-                ClaimsIdentity? identity=new ClaimsIdentity(new[] { claim }, "BasicAuthentication");
-                ClaimsPrincipal principal=new ClaimsPrincipal(identity);
-                context.User= principal;
-            }
-            await _next(context);
+            //if (UserID != null)
+            //{
+            //context.Items["User"] = UserID;
+            //    Claim claim = new Claim(ClaimTypes.Name, UserID.ToString() ?? "0");
+            //    ClaimsIdentity? identity=new ClaimsIdentity(new[] { claim }, "BasicAuthentication");
+            //    ClaimsPrincipal principal=new ClaimsPrincipal(identity);
+            //    context.User= principal;
+            //}
+            //await _next(context);
         }
     }
     public static class AuthHandlerMiddlewareExtension

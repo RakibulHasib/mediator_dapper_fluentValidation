@@ -12,7 +12,7 @@ using System.Reflection;
 using System.Text;
 using Test_project.Context;
 using Test_project.Entity;
-using Test_project.Folder;
+using Test_project.Services;
 using Test_project.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -93,7 +93,7 @@ if (app.Environment.IsDevelopment())
 }
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseAuthhandler();
+//app.UseAuthhandler();
 app.MapControllers();
 
 app.Run();
