@@ -1,5 +1,4 @@
-﻿using Dapper;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Test_project.Attributes;
 using Test_project.Entity;

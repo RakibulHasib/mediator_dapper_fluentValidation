@@ -49,6 +49,10 @@ namespace Test_project.Mediator
                 using (var connection = _context.CreateConnection())
                 {
                     var result=await connection.ExecuteAsync(SP_Register, parameters,commandType:CommandType.StoredProcedure);
+                    if (result == -1)
+                    {
+                        throw new Exception("Exist login ID");
+                    }
                     return result;
                 }
             }
