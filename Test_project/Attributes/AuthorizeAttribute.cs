@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Security.Claims;
 using Test_project.Context;
@@ -12,15 +13,21 @@ namespace Test_project.Attributes
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public class AuthorizeAttribute : Attribute, IAuthorizationFilter
     {
-        //private readonly TestDbContext _context;
-        public string Roles { get; }
-
-        public AuthorizeAttribute(string roles)
+        public AuthorizeAttribute()
         {
-            Roles = roles;
+
         }
 
-        public void OnAuthorization(AuthorizationFilterContext context)
+        private readonly TestDbContext? _context;
+        public string? Permissions { get; }
+
+        public AuthorizeAttribute(TestDbContext context, string permissions)
+        {
+            _context = context;
+            Permissions = permissions;
+        }
+
+        public async void OnAuthorization(AuthorizationFilterContext context)
         {
             string? token = context.HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
             if (token == null)
@@ -32,10 +39,12 @@ namespace Test_project.Attributes
             UserService? userService = context.HttpContext.RequestServices.GetService(typeof(UserService)) as UserService;
             var response = userService.ValidateToken(token);
             int? userID = response.UserID;
-            string? roles = response.RoleName;
-            var requiredRoles = Roles.Split(',');
+            int? roles = response.RoleID;
+            var requiredPermission = Permissions.Split(',');
+            var findPermissionIds = await _context.PermissionAssignTbl.Where(a => a.RoleId == roles).Select(a=>a.PermissionId).ToListAsync();
+            var checkPermission=await _context.PermissionTbl.Where(a=>findPermissionIds.Contains(a.PermissionId)).Select(a=>a.PermissionName).ToListAsync();
 
-            if (!requiredRoles.Contains(roles))
+            if (!requiredPermission.Any(permission=> checkPermission.Contains(permission)))
             {
                 context.Result = new UnauthorizedResult();
                 return;

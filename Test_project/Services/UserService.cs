@@ -51,11 +51,11 @@ namespace Test_project.Services
 
                 JwtSecurityToken jwtSecurity = (JwtSecurityToken)validatedToken;
                 int userID = int.Parse(jwtSecurity.Claims.First(x => x.Type == "UID").Value);
-                string roleName = jwtSecurity.Claims.First(x => x.Type == "RID").Value;
+                int roleId = int.Parse(jwtSecurity.Claims.First(x => x.Type == "RID").Value);
                 ValidateResponse_DTO response_DTO = new ValidateResponse_DTO()
                 {
                     UserID = userID,
-                    RoleName = roleName
+                    RoleID = roleId
                 };
 
                 return response_DTO;

@@ -14,6 +14,7 @@ using Test_project.Context;
 using Test_project.Entity;
 using Test_project.Services;
 using Test_project.Middleware;
+using Test_project.EnumList;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,35 +26,11 @@ builder.Services.AddControllers()
 
 //builder.Services.AddTransient<TestDbContext>();
 builder.Services.AddDbContext<TestDbContext>(opt => opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddScoped<UserService>();
+builder.Services.AddTransient<UserService>();
+builder.Services.AddHostedService<EnumInitializerService>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-//Add Cors
-//builder.Services.AddCors(options =>
-//{
-//    options.AddDefaultPolicy(
-//        corsPolicyBuilder => { corsPolicyBuilder.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin(); });
-//});
-////jwt
-//var appSettingsSection = builder.Configuration.GetSection("AppSettings");
-//var appSettings = appSettingsSection.Get<AppSettings>();
-//var key = Encoding.ASCII.GetBytes(appSettings.Key);
-//builder.Services.AddAuthentication(au =>
-//{
-//    au.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-//    au.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-//}).AddJwtBearer(jwt =>
-//{
-//    jwt.RequireHttpsMetadata = false;
-//    jwt.SaveToken = true;
-//    jwt.TokenValidationParameters = new TokenValidationParameters
-//    {
-//        ValidateIssuerSigningKey = true,
-//        IssuerSigningKey = new SymmetricSecurityKey(key),
-//        ValidateIssuer = false,
-//        ValidateAudience = false,
-//    };
-//});
+
 builder.Services.AddSwaggerGen(option =>
 {
     option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -82,7 +59,6 @@ builder.Services.AddSwaggerGen(option =>
 });
 builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
 
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -91,9 +67,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
 app.UseAuthentication();
 app.UseAuthorization();
 //app.UseAuthhandler();
 app.MapControllers();
-
 app.Run();

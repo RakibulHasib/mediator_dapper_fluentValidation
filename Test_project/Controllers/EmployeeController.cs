@@ -1,13 +1,15 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Test_project.Attributes;
+using Test_project.Context;
 using Test_project.Entity;
+using Test_project.EnumList;
 using Test_project.Mediator;
 namespace Test_project.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(roles:"Admin")]
+    
     
     public class EmployeeController : ControllerBase
     {
@@ -17,12 +19,14 @@ namespace Test_project.Controllers
             this._mediator = mediator;
         }
 
+        //[Authorize(permissions: "GetEmployee")]
         [HttpGet("GetEmployee")]
         public async Task<ActionResult<List<Employee>>> GetEmployee()
         {
             return await _mediator.Send(new GetEmployeeQuery());
         }
 
+        //[Authorize(permissions: PermissionList.SetEmployee)]
         [HttpPost("InsertEmplyoee")]
         public async Task<ActionResult<int>> InsertEmplyoee(InsertEmployeeCommand command)
         {

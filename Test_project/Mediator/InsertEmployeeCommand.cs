@@ -3,7 +3,6 @@ using FluentValidation;
 using MediatR;
 using System.Data;
 using Test_project.Context;
-using Test_project.Entity;
 
 namespace Test_project.Mediator
 {
