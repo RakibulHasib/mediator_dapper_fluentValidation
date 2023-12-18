@@ -3,6 +3,6 @@
     public class ValidateResponse_DTO
     {
         public int UserID { get; set; }
-        public string? RoleName { get; set; }
+        public int RoleID { get; set; }
     }
 }

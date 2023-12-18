@@ -1,13 +1,12 @@
-﻿using Azure;
-using Dapper;
+﻿using Dapper;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 using Test_project.Context;
 using Test_project.Entity;
+using Test_project.EnumList;
 using Test_project.Services;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Test_project.Mediator
 {
@@ -23,6 +22,7 @@ namespace Test_project.Mediator
         public string LoginId { get; set; } = null!;
 
         public string Password { get; set; } = null!;
+        public List<int> PermissionID { get; set; } = null!;
         internal sealed class RegisterCommandHandler : IRequestHandler<RegisterCommand, int>
         {
             private readonly TestDbContext _context;
@@ -35,22 +35,58 @@ namespace Test_project.Mediator
             }
             public async Task<int> Handle(RegisterCommand request, CancellationToken cancellationToken)
             {
-                string? password = _userService.PasswordHassher(request.Password);
-                string? SP_Register = "InsertRegister_prc";
-                var parameters = new DynamicParameters();
-                parameters.Add("FirstName", request.FirstName, DbType.String);
-                parameters.Add("LastName", request.LastName, DbType.String);
-                parameters.Add("Email", request.Email, DbType.String);
-                parameters.Add("Phone", request.Phone, DbType.Int32);
-                parameters.Add("LoginId", request.LoginId, DbType.String);
-                parameters.Add("Password", password, DbType.String);
-                parameters.Add("Result", 0, DbType.Int32);
-
-                using (var connection = _context.CreateConnection())
+                int result = 0;
+                var hasLoginID = await _context.UserLogInInfoTbl.Where(a => a.LoginId == request.LoginId).FirstOrDefaultAsync();
+                if (hasLoginID != null)
                 {
-                    var result=await connection.ExecuteAsync(SP_Register, parameters,commandType:CommandType.StoredProcedure);
-                    return result;
+                    throw new InvalidOperationException("Login Id already exist!!");
                 }
+                UserInfoTbl userInfo = new UserInfoTbl()
+                {
+                    FirstName = request.FirstName,
+                    LastName = request.LastName,
+                    Email = request.Email,
+                    Phone = request.Phone
+                };
+                await _context.UserInfoTbl.AddAsync(userInfo);
+                await _context.SaveChangesAsync();
+
+                RoleMasterTbl roleMaster = new RoleMasterTbl()
+                {
+                    RoleName = "Role " + await _context.RoleMasterTbl.CountAsync(),
+                };
+                await _context.RoleMasterTbl.AddAsync(roleMaster);
+                await _context.SaveChangesAsync();
+
+                UserLogInInfoTbl userLogInInfo = new UserLogInInfoTbl()
+                {
+                    UserInfoId = userInfo.UserInfoId,
+                    LoginId = request.LoginId,
+                    Password = _userService.PasswordHassher(request.Password),
+                    RoleId = roleMaster.RoleId,
+                    TokenSecretKey = ""
+                };
+                await _context.UserLogInInfoTbl.AddAsync(userLogInInfo);
+
+
+                if (request.PermissionID != null)
+                {
+                    foreach (var item in request.PermissionID)
+                    {
+                        var permissionCheck = await _context.PermissionTbl.AnyAsync(a => a.PermissionId == item);
+                        if (permissionCheck)
+                        {
+                            PermissionAssignTbl assignTbl = new PermissionAssignTbl()
+                            {
+                                PermissionId = item,
+                                RoleId = roleMaster.RoleId
+                            };
+                            await _context.PermissionAssignTbl.AddAsync(assignTbl);
+                        }
+                    }
+                }
+                result = await _context.SaveChangesAsync();
+                return result;
             }
         }
     }

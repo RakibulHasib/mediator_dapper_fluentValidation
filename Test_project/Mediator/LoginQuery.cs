@@ -70,7 +70,7 @@ namespace Test_project.Mediator
                 {
                     new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                     new("UID",loginData.UserID.ToString()),
-                    new("RID",loginData.RoleName)
+                    new("RID",loginData.RoleID.ToString())
                 };
                     //token Create
                     if (loginData.Secret != null)
