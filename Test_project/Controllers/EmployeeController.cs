@@ -9,8 +9,7 @@ namespace Test_project.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    
-    
+
     public class EmployeeController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -19,14 +18,14 @@ namespace Test_project.Controllers
             this._mediator = mediator;
         }
 
-        //[Authorize(permissions: "GetEmployee")]
+        [Authorize(PermissionList.GetEmployee)]
         [HttpGet("GetEmployee")]
         public async Task<ActionResult<List<Employee>>> GetEmployee()
         {
             return await _mediator.Send(new GetEmployeeQuery());
         }
 
-        //[Authorize(permissions: PermissionList.SetEmployee)]
+        [Authorize(PermissionList.SetEmployee)]
         [HttpPost("InsertEmplyoee")]
         public async Task<ActionResult<int>> InsertEmplyoee(InsertEmployeeCommand command)
         {

@@ -26,6 +26,7 @@ builder.Services.AddControllers()
 
 //builder.Services.AddTransient<TestDbContext>();
 builder.Services.AddDbContext<TestDbContext>(opt => opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<SqliteDbContext>(opt => opt.UseSqlite(builder.Configuration.GetConnectionString("SqliteConnection")));
 builder.Services.AddTransient<UserService>();
 builder.Services.AddHostedService<EnumInitializerService>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

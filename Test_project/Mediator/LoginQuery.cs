@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security;
 using System.Security.Claims;
 using Test_project.Context;
 using Test_project.DTO;
@@ -57,7 +58,10 @@ namespace Test_project.Mediator
 
 
                 var loginData = (await _context.CreateConnection().QueryAsync<LoginResponse_DTO>(dataList, new { LoginID = request.LoginID, Password = request.Password })).FirstOrDefault();
+                var Permissions = await _context.PermissionAssignTbl.Where(a => a.RoleId == loginData.RoleID).Select(a => a.PermissionId).ToListAsync();
+                string permissionString = string.Join(",", Permissions);
 
+                Guid Session= Guid.NewGuid();
                 Guid tokenSecretKey = Guid.NewGuid();
                 loginData.Secret = tokenSecretKey.ToString();
                 passwordCheck.TokenSecretKey = loginData.Secret;
@@ -68,9 +72,11 @@ namespace Test_project.Mediator
                 {
                     List<Claim> authClaims = new List<Claim>
                 {
-                    new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    //new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                     new("UID",loginData.UserID.ToString()),
-                    new("RID",loginData.RoleID.ToString())
+                    new("RID",loginData.RoleID.ToString()),
+                    new("Pmn",permissionString),
+                    new("Ssn",Session.ToString())
                 };
                     //token Create
                     if (loginData.Secret != null)
@@ -78,9 +84,9 @@ namespace Test_project.Mediator
                         string token = _userService.GetToken(authClaims, loginData.Secret);
                         loginData.Secret = null;
                         loginData.Token = token;
-
                     }
-                }
+                }               
+                _userService.InsertUpdateCredential(Session, loginData.UserID, loginData.RoleID, loginData.Token, permissionString);
                 return loginData;
             }
         }

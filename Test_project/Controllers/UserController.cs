@@ -28,6 +28,16 @@ namespace Test_project.Controllers
            return await _mediator.Send(query);
         }
 
-        
+        [HttpPut("ChangePassWord")]
+        public async Task<(int result, string message)> ChangePassWord(ChangePasswordCommand command)
+        {
+            return await _mediator.Send(command);
+        }
+
+        [HttpPut("LogOut")]
+        public async Task<int> LogOut(LogOutCommand command)
+        {
+            return await _mediator.Send(command);
+        }
     }
 }

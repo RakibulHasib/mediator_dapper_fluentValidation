@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Security.Claims;
 using Test_project.Context;
+using Test_project.EnumList;
 using Test_project.Services;
 
 namespace Test_project.Attributes
@@ -13,17 +14,10 @@ namespace Test_project.Attributes
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public class AuthorizeAttribute : Attribute, IAuthorizationFilter
     {
-        public AuthorizeAttribute()
+        public PermissionList Permissions { get; }
+
+        public AuthorizeAttribute(PermissionList permissions)
         {
-
-        }
-
-        private readonly TestDbContext? _context;
-        public string? Permissions { get; }
-
-        public AuthorizeAttribute(TestDbContext context, string permissions)
-        {
-            _context = context;
             Permissions = permissions;
         }
 
@@ -35,16 +29,23 @@ namespace Test_project.Attributes
                 context.Result = new UnauthorizedResult();
                 return;
             }
-
-            UserService? userService = context.HttpContext.RequestServices.GetService(typeof(UserService)) as UserService;
+            UserService? userService = context.HttpContext.RequestServices.GetService<UserService>();
             var response = userService.ValidateToken(token);
+            if (response == null)
+            {
+                context.Result = new UnauthorizedResult();
+                return;
+            }
+            string? permissions = response.Permission;
+            string? session=response.Session;
             int? userID = response.UserID;
-            int? roles = response.RoleID;
-            var requiredPermission = Permissions.Split(',');
-            var findPermissionIds = await _context.PermissionAssignTbl.Where(a => a.RoleId == roles).Select(a=>a.PermissionId).ToListAsync();
-            var checkPermission=await _context.PermissionTbl.Where(a=>findPermissionIds.Contains(a.PermissionId)).Select(a=>a.PermissionName).ToListAsync();
+            int role = response.RoleID;
+            var requiredPermission = (int)Permissions;
+            //var findPermissionIds = await userService.GetPermission(role);
+            var findPermissionString = permissions.Split(',');
+            var findPermissionIds = Array.ConvertAll(findPermissionString, int.Parse);
 
-            if (!requiredPermission.Any(permission=> checkPermission.Contains(permission)))
+            if (!findPermissionIds.Contains(requiredPermission))
             {
                 context.Result = new UnauthorizedResult();
                 return;
