@@ -1,8 +1,6 @@
 ﻿using Dapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security;
 using System.Security.Claims;
 using Test_project.Context;
 using Test_project.DTO;
@@ -30,14 +28,14 @@ namespace Test_project.Mediator
                 request.Password = _userService.PasswordHassher(request.Password);
                 var passwordCheck = await _context.UserLogInInfoTbl.Where(a => a.Password == request.Password && a.LoginId == request.LoginID).FirstOrDefaultAsync();
                 var loginIdCheck = await _context.UserLogInInfoTbl.AnyAsync(a => a.LoginId == request.LoginID);
-                if (passwordCheck == null)
-                {
-                    throw new UnauthorizedAccessException("Invalid Password!!");
-                }
                 if (loginIdCheck == false)
                 {
                     throw new UnauthorizedAccessException("Invalid LoginId!!");
                 }
+                if (passwordCheck == null)
+                {
+                    throw new UnauthorizedAccessException("Invalid Password!!");
+                }               
 
                 var dataList = @"SELECT TOP 1
                 uli.LoginId AS LoginID,
@@ -76,7 +74,8 @@ namespace Test_project.Mediator
                     new("UID",loginData.UserID.ToString()),
                     new("RID",loginData.RoleID.ToString()),
                     new("Pmn",permissionString),
-                    new("Ssn",Session.ToString())
+                    new("Ssn",Session.ToString()),
+                    new("Sec",loginData.Secret)
                 };
                     //token Create
                     if (loginData.Secret != null)

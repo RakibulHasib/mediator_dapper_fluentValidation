@@ -38,7 +38,7 @@ namespace Test_project.Middleware
     }
     public static class AuthHandlerMiddlewareExtension
     {
-        public static IApplicationBuilder UseAuthhandler(this IApplicationBuilder builder)
+        public static IApplicationBuilder UseAuthHandler(this IApplicationBuilder builder)
         {
             return builder.UseMiddleware<AuthHandlerMiddleware>();
         }

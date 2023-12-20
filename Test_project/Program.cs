@@ -2,19 +2,11 @@ using FluentValidation.AspNetCore;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Net;
-using System.Net.Security;
 using System.Reflection;
-using System.Text;
 using Test_project.Context;
-using Test_project.Entity;
 using Test_project.Services;
 using Test_project.Middleware;
-using Test_project.EnumList;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +23,27 @@ builder.Services.AddTransient<UserService>();
 builder.Services.AddHostedService<EnumInitializerService>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+
+//JWT
+//string secretKey = builder.Configuration.GetSection("JWT")["Secret"];
+//byte[] keyBytes = Encoding.ASCII.GetBytes(secretKey);
+builder.Services.AddAuthentication(au =>
+{
+    au.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    au.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(jwt =>
+{
+    jwt.RequireHttpsMetadata = false;
+    jwt.SaveToken = true;
+    //jwt.TokenValidationParameters = new TokenValidationParameters
+    //{
+    //    ValidateIssuerSigningKey = true,
+    //    IssuerSigningKey = new SymmetricSecurityKey(keyBytes),
+    //    ValidateIssuer = false,
+    //    ValidateAudience = false,
+    //    ValidateLifetime = false
+    //};
+});
 
 builder.Services.AddSwaggerGen(option =>
 {
@@ -71,6 +84,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseErrorhandler();
 //app.UseAuthhandler();
 app.MapControllers();
 app.Run();

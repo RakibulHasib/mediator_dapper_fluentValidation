@@ -123,6 +123,10 @@ namespace Test_project.Mediator
                 .NotEmpty().WithMessage("Login ID required!!!")
                 .MinimumLength(4).WithMessage("LoginId must be at least 4 characters long.")
                 .MaximumLength(6).WithMessage("LoginId will not greter than 6 characters long");
+
+            RuleFor(a => a.PermissionID)
+                .NotEmpty().WithMessage("Permission is required!!")
+                .NotNull().WithMessage("Permission is required!!");
         }
     }
 }

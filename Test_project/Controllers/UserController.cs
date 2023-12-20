@@ -39,5 +39,11 @@ namespace Test_project.Controllers
         {
             return await _mediator.Send(command);
         }
+
+        [HttpPost("RefreshToken")]
+        public async Task<ActionResult<LoginResponse_DTO>> RefreshToken(RefreshTokenQuery query)
+        {
+            return await _mediator.Send(query);
+        }
     }
 }

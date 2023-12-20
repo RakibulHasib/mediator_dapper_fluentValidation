@@ -1,30 +1,39 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using System.IdentityModel.Tokens.Jwt;
 using Test_project.Context;
 
 namespace Test_project.Mediator
 {
     public class LogOutCommand:IRequest<int>
     {
-        public int UserID { get; set; }
+        public string? token { get; set; }
         internal sealed class LogOutCommandHandler : IRequestHandler<LogOutCommand, int>
         {
-            private readonly TestDbContext _context;
+            private readonly SqliteDbContext _sqdb;
 
-            public LogOutCommandHandler(TestDbContext context)
+            public LogOutCommandHandler(SqliteDbContext sqdb)
             {
-                _context = context;
+                _sqdb = sqdb;
             }
 
             public async Task<int> Handle(LogOutCommand request, CancellationToken cancellationToken)
             {
                 int result = -1;
-                var user = await _context.UserLogInInfoTbl.Where(a => a.UserId == request.UserID).SingleOrDefaultAsync();
-                if (user != null)
+                if (request.token == null)
                 {
-                    user.TokenSecretKey = "";
-                    _context.UserLogInInfoTbl.Update(user);
-                    result = await _context.SaveChangesAsync();
+                    return -1;
+                }
+                JwtSecurityTokenHandler? handler = new();
+                JwtSecurityToken? jwtSecurityToken = handler.ReadJwtToken(request.token);
+                string? SessionID = jwtSecurityToken.Claims.First(claim => claim.Type == "Ssn").Value;
+                Guid sessionIdGuid = Guid.Parse(SessionID);
+
+                var userData =await _sqdb.UserLogInfo.Where(a => a.SessionID == sessionIdGuid).SingleOrDefaultAsync();
+                if (userData != null)
+                {
+                    _sqdb.UserLogInfo.Remove(userData);
+                    result = await _sqdb.SaveChangesAsync();
                 }
                 return result;
             }

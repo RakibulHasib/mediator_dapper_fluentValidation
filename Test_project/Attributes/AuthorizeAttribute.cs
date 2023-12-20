@@ -1,11 +1,7 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
 using System.Security.Claims;
-using Test_project.Context;
 using Test_project.EnumList;
 using Test_project.Services;
 
@@ -26,28 +22,32 @@ namespace Test_project.Attributes
             string? token = context.HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
             if (token == null)
             {
-                context.Result = new UnauthorizedResult();
+                context.Result = new UnauthorizedObjectResult(new {Message="Token is null!!"});
                 return;
             }
             UserService? userService = context.HttpContext.RequestServices.GetService<UserService>();
             var response = userService.ValidateToken(token);
-            if (response == null)
+            switch (response.Response)
             {
-                context.Result = new UnauthorizedResult();
-                return;
+                case -1:
+                    context.Result = new UnauthorizedObjectResult(new { Message = "User Logged Out!!" });
+                    return;
+                case -2:
+                    context.Result = new UnauthorizedObjectResult(new { Message = "Token Is Expired!!" });
+                    return;
+                case -3:
+                    context.Result = new UnauthorizedObjectResult(new { Message = "User Not Found!!" });
+                    return;
             }
             string? permissions = response.Permission;
-            string? session=response.Session;
             int? userID = response.UserID;
-            int role = response.RoleID;
             var requiredPermission = (int)Permissions;
-            //var findPermissionIds = await userService.GetPermission(role);
             var findPermissionString = permissions.Split(',');
             var findPermissionIds = Array.ConvertAll(findPermissionString, int.Parse);
 
             if (!findPermissionIds.Contains(requiredPermission))
             {
-                context.Result = new UnauthorizedResult();
+                context.Result = new UnauthorizedObjectResult(new {Message="You don't have permission!!!"});
                 return;
             }
             if (userID != null)
@@ -60,7 +60,7 @@ namespace Test_project.Attributes
             }
             else
             {
-                context.Result = new UnauthorizedResult();
+                context.Result = new UnauthorizedObjectResult(new {Message="User not found"});
             }
         }
     }
