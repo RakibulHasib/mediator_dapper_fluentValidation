@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using FluentValidation.TestHelper;
+using System.Net;
 using System.Text.Json;
 using Test_project.Context;
 using Test_project.ViewModel;
@@ -39,7 +40,7 @@ namespace Test_project.Middleware
             {
                 case UnauthorizedAccessException unauthorizedAccessEx:
                     response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                    responseViewModel.Status= (int)HttpStatusCode.Unauthorized;
+                    responseViewModel.StatusCode = (int)HttpStatusCode.Unauthorized;
                     responseViewModel.Message= error.Message;
                     responseViewModel.Detail = unauthorizedAccessEx.Message;
                     await response.WriteAsync(JsonSerializer.Serialize(responseViewModel));
@@ -47,11 +48,20 @@ namespace Test_project.Middleware
 
                 case InvalidOperationException invalidOperationEx:
                     response.StatusCode = (int)HttpStatusCode.ExpectationFailed;
-                    responseViewModel.Status= (int)HttpStatusCode.ExpectationFailed;
+                    responseViewModel.StatusCode = (int)HttpStatusCode.ExpectationFailed;
                     responseViewModel.Message= error.Message;
                     responseViewModel.Detail=invalidOperationEx.Message; 
                     await response.WriteAsync(JsonSerializer.Serialize(responseViewModel));
                     break;
+
+                case Exception ex:
+                    response.StatusCode = (int)HttpStatusCode.ExpectationFailed;
+                    responseViewModel.StatusCode = (int)HttpStatusCode.ExpectationFailed;
+                    responseViewModel.Message = error.Message;
+                    responseViewModel.Detail = ex.Message;
+                    await response.WriteAsync(JsonSerializer.Serialize(responseViewModel));
+                    break;
+
             }
         }
     }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
@@ -16,14 +17,16 @@ namespace Test_project.Services
     {
         private readonly TestDbContext _context;
         private readonly SqliteDbContext _sqdb;
-        public UserService(TestDbContext context, SqliteDbContext sqdb)
+        private readonly IConfiguration _configuration;
+        public UserService(TestDbContext context, SqliteDbContext sqdb, IConfiguration configuration)
         {
             _context = context;
             _sqdb = sqdb;
+            _configuration = configuration;
         }
 
 
-        public async Task<LoginResponse_DTO> TokenResponse(int UserID)
+        public async Task<LoginResponse_DTO> TokenResponse(int? UserID)
         {
             var data = await (
             from uli in _context.UserLogInInfoTbl
@@ -38,8 +41,7 @@ namespace Test_project.Services
                 UserName = ui.FirstName + " " + ui.LastName,
                 RoleID = uli.RoleId,
                 RoleName = r.RoleName,
-                Token = "",
-                Secret = ""
+                Token = ""
             }).FirstOrDefaultAsync();
             return data;
         }
@@ -51,7 +53,6 @@ namespace Test_project.Services
             JwtSecurityToken? jwtSecurityToken = handler.ReadJwtToken(token);
             string? UserID = jwtSecurityToken.Claims.First(claim => claim.Type == "UID").Value;
             string? SessionID = jwtSecurityToken.Claims.First(claim => claim.Type == "Ssn").Value;
-            string? tokenSecretKey = jwtSecurityToken.Claims.First(claim => claim.Type == "Sec").Value;
             int checkSession = CheckTokenExpiration(SessionID);
             switch (checkSession)
             {
@@ -69,7 +70,8 @@ namespace Test_project.Services
                 return response_DTO;
             }
             JwtSecurityTokenHandler? tokenhandler = new();
-            byte[] key = Encoding.ASCII.GetBytes(tokenSecretKey);
+            string secretKey = _configuration.GetSection("JWT")["Secret"];
+            byte[] key = Encoding.ASCII.GetBytes(secretKey);
 
             try
             {
@@ -138,7 +140,7 @@ namespace Test_project.Services
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public async void InsertUpdateCredential(Guid Session, int UserId, int RoleId, string Token, string Permission)
+        public async void InsertUpdateCredential(Guid Session, int? UserId, int? RoleId, string Token, string Permission)
         {
             var data = await _sqdb.UserLogInfo.Where(a => a.SessionID == Session).SingleOrDefaultAsync();
             try

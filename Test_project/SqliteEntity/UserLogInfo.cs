@@ -7,8 +7,8 @@ namespace Test_project.SqliteEntity
     {
         [Key]
         public Guid SessionID { get; set; }
-        public int UserID { get; set; }
-        public int RoleID { get; set; }
+        public int? UserID { get; set; }
+        public int? RoleID { get; set; }
         public string? Token { get; set; }
         public DateTime LoginTime { get; set; }
         public DateTime SessionTime { get; set; }

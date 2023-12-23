@@ -7,14 +7,18 @@ using System.Reflection;
 using Test_project.Context;
 using Test_project.Services;
 using Test_project.Middleware;
+using Test_project.Pipelines;
+using FluentValidation;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers()
-    .AddFluentValidation(c =>
-    c.RegisterValidatorsFromAssembly(Assembly.GetExecutingAssembly()));
+builder.Services.AddControllers();
+    //.AddFluentValidation(c =>
+    //c.RegisterValidatorsFromAssembly(Assembly.GetExecutingAssembly()));
 
 //builder.Services.AddTransient<TestDbContext>();
 builder.Services.AddDbContext<TestDbContext>(opt => opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -25,8 +29,8 @@ builder.Services.AddHostedService<EnumInitializerService>();
 builder.Services.AddEndpointsApiExplorer();
 
 //JWT
-//string secretKey = builder.Configuration.GetSection("JWT")["Secret"];
-//byte[] keyBytes = Encoding.ASCII.GetBytes(secretKey);
+string secretKey = builder.Configuration.GetSection("JWT")["Secret"];
+byte[] keyBytes = Encoding.ASCII.GetBytes(secretKey);
 builder.Services.AddAuthentication(au =>
 {
     au.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -35,14 +39,14 @@ builder.Services.AddAuthentication(au =>
 {
     jwt.RequireHttpsMetadata = false;
     jwt.SaveToken = true;
-    //jwt.TokenValidationParameters = new TokenValidationParameters
-    //{
-    //    ValidateIssuerSigningKey = true,
-    //    IssuerSigningKey = new SymmetricSecurityKey(keyBytes),
-    //    ValidateIssuer = false,
-    //    ValidateAudience = false,
-    //    ValidateLifetime = false
-    //};
+    jwt.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(keyBytes),
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateLifetime = false
+    };
 });
 
 builder.Services.AddSwaggerGen(option =>
@@ -72,6 +76,8 @@ builder.Services.AddSwaggerGen(option =>
     });
 });
 builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
+builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
 
 var app = builder.Build();
 
