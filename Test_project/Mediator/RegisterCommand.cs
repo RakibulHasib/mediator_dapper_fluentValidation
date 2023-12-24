@@ -41,51 +41,61 @@ namespace Test_project.Mediator
                 {
                     throw new InvalidOperationException("Login Id already exist!!");
                 }
-                UserInfoTbl userInfo = new UserInfoTbl()
+                await _context.Database.BeginTransactionAsync();
+                try
                 {
-                    FirstName = request.FirstName,
-                    LastName = request.LastName,
-                    Email = request.Email,
-                    Phone = request.Phone
-                };
-                await _context.UserInfoTbl.AddAsync(userInfo);
-                await _context.SaveChangesAsync();
-
-                RoleMasterTbl roleMaster = new RoleMasterTbl()
-                {
-                    RoleName = "Role " + await _context.RoleMasterTbl.CountAsync(),
-                };
-                await _context.RoleMasterTbl.AddAsync(roleMaster);
-                await _context.SaveChangesAsync();
-
-                UserLogInInfoTbl userLogInInfo = new UserLogInInfoTbl()
-                {
-                    UserInfoId = userInfo.UserInfoId,
-                    LoginId = request.LoginId,
-                    Password = _userService.PasswordHassher(request.Password),
-                    RoleId = roleMaster.RoleId,
-                    TokenSecretKey = ""
-                };
-                await _context.UserLogInInfoTbl.AddAsync(userLogInInfo);
-
-
-                if (request.PermissionID != null)
-                {
-                    foreach (var item in request.PermissionID)
+                    UserInfoTbl userInfo = new UserInfoTbl()
                     {
-                        var permissionCheck = await _context.PermissionTbl.AnyAsync(a => a.PermissionId == item);
-                        if (permissionCheck)
+                        FirstName = request.FirstName,
+                        LastName = request.LastName,
+                        Email = request.Email,
+                        Phone = request.Phone
+                    };
+                    await _context.UserInfoTbl.AddAsync(userInfo);
+                    await _context.SaveChangesAsync();
+
+                    RoleMasterTbl roleMaster = new RoleMasterTbl()
+                    {
+                        RoleName = "Role " + await _context.RoleMasterTbl.CountAsync(),
+                    };
+                    await _context.RoleMasterTbl.AddAsync(roleMaster);
+                    await _context.SaveChangesAsync();
+
+                    UserLogInInfoTbl userLogInInfo = new UserLogInInfoTbl()
+                    {
+                        UserInfoId = userInfo.UserInfoId,
+                        LoginId = request.LoginId,
+                        Password = _userService.PasswordHassher(request.Password),
+                        RoleId = roleMaster.RoleId,
+                        TokenSecretKey = ""
+                    };
+                    await _context.UserLogInInfoTbl.AddAsync(userLogInInfo);
+
+
+                    if (request.PermissionID != null)
+                    {
+                        foreach (var item in request.PermissionID)
                         {
-                            PermissionAssignTbl assignTbl = new PermissionAssignTbl()
+                            var permissionCheck = await _context.PermissionTbl.AnyAsync(a => a.PermissionId == item);
+                            if (permissionCheck)
                             {
-                                PermissionId = item,
-                                RoleId = roleMaster.RoleId
-                            };
-                            await _context.PermissionAssignTbl.AddAsync(assignTbl);
+                                PermissionAssignTbl assignTbl = new PermissionAssignTbl()
+                                {
+                                    PermissionId = item,
+                                    RoleId = roleMaster.RoleId
+                                };
+                                await _context.PermissionAssignTbl.AddAsync(assignTbl);
+                            }
                         }
                     }
+                    result = await _context.SaveChangesAsync();
+                    await _context.Database.CommitTransactionAsync();
                 }
-                result = await _context.SaveChangesAsync();
+                catch (Exception)
+                {
+                    await _context.Database.RollbackTransactionAsync();
+                }
+                
                 return result;
             }
         }

@@ -29,13 +29,13 @@ namespace Test_project.Attributes
             var response = userService.ValidateToken(token);
             switch (response.Response)
             {
-                case -1:
+                case (int)ResponseEnum.SessionNull:
                     context.Result = new UnauthorizedObjectResult(new { Message = "User Logged Out!!" });
                     return;
-                case -2:
+                case (int)ResponseEnum.ExpireToken:
                     context.Result = new UnauthorizedObjectResult(new { Message = "Token Is Expired!!" });
                     return;
-                case -3:
+                case (int)ResponseEnum.UserNull:
                     context.Result = new UnauthorizedObjectResult(new { Message = "User Not Found!!" });
                     return;
             }

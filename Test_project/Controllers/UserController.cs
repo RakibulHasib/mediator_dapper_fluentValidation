@@ -23,7 +23,7 @@ namespace Test_project.Controllers
         }
 
         [HttpPost("Login")]
-        public async Task<LoginResponse_DTO?> Login(LoginQuery query)
+        public async Task<LoginResponseWrapper?> Login(LoginQuery query)
         {
            return await _mediator.Send(query);
         }

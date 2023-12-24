@@ -9,6 +9,7 @@ using System.Text;
 using Test_project.Context;
 using Test_project.DTO;
 using Test_project.Entity;
+using Test_project.EnumList;
 using Test_project.SqliteEntity;
 
 namespace Test_project.Services
@@ -56,17 +57,17 @@ namespace Test_project.Services
             int checkSession = CheckTokenExpiration(SessionID);
             switch (checkSession)
             {
-                case -1:
-                    response_DTO.Response = -1;
+                case (int)ResponseEnum.SessionNull:
+                    response_DTO.Response = (int)ResponseEnum.SessionNull;
                     return response_DTO;
-                case -2:
-                    response_DTO.Response = -2;
+                case (int)ResponseEnum.ExpireToken:
+                    response_DTO.Response = (int)ResponseEnum.ExpireToken;
                     return response_DTO;
             }
             UserLogInInfoTbl? userData = _context.UserLogInInfoTbl.Where(a => a.UserId == Convert.ToInt32(UserID)).FirstOrDefault();
             if (userData == null)
             {
-                response_DTO.Response = -3;
+                response_DTO.Response = (int)ResponseEnum.UserNull;
                 return response_DTO;
             }
             JwtSecurityTokenHandler? tokenhandler = new();
@@ -89,7 +90,7 @@ namespace Test_project.Services
                 string permission = jwtSecurity.Claims.First(x => x.Type == "Pmn").Value;
                 response_DTO.UserID = userID;
                 response_DTO.Permission = permission;
-                response_DTO.Response = 1;
+                response_DTO.Response = (int)ResponseEnum.Success;
                 return response_DTO;
             }
             catch
@@ -105,7 +106,7 @@ namespace Test_project.Services
             UserLogInfo? userData = _sqdb.UserLogInfo.Where(a => a.SessionID == sessionIdGuid).SingleOrDefault();
             if (userData == null)
             {
-                return -1;
+                return (int)ResponseEnum.SessionNull;
             }
             var deleteExpired = _sqdb.UserLogInfo.Where(a => a.UserID == userData.UserID && a.SessionID != sessionIdGuid && a.SessionTime < DateTime.Now).ToList();
             if (deleteExpired.Any())
@@ -115,9 +116,9 @@ namespace Test_project.Services
             }
             if (DateTime.Now > userData.SessionTime)
             {
-                return -2;
+                return (int)ResponseEnum.ExpireToken;
             }
-            return 1;
+            return (int)ResponseEnum.Success;
         }
 
         // Password Encoder

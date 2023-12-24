@@ -25,7 +25,7 @@ namespace Test_project.Controllers
             return await _mediator.Send(new GetEmployeeQuery());
         }
 
-        [Authorize(PermissionList.SetEmployee)]
+        //[Authorize(PermissionList.SetEmployee)]
         [HttpPost("InsertEmplyoee")]
         public async Task<ActionResult<int>> InsertEmplyoee(InsertEmployeeCommand command)
         {

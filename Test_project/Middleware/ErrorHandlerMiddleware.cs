@@ -32,10 +32,8 @@ namespace Test_project.Middleware
             HttpResponse? response=context.Response;
             response.ContentType = "application/json";
 
-            ResponseViewModel? responseViewModel = new ResponseViewModel
-            {
-                Instance = context.Request.Path
-            };
+            ResponseViewModel? responseViewModel = new ResponseViewModel();
+            
             switch (error)
             {
                 case UnauthorizedAccessException unauthorizedAccessEx:

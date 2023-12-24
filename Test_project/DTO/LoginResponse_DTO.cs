@@ -12,10 +12,11 @@ namespace Test_project.DTO
         public string? RoleName { get; set; }
         public string? Token { get; set; }
         public string? RefreshToken { get; set; }
-        public ResponseViewModel? response { get; set; }
-        public LoginResponse_DTO()
-        {
-            response = new ResponseViewModel();
-        }
+    }
+
+    public class LoginResponseWrapper
+    {
+        public ResponseViewModel? response { get; set; }=new ResponseViewModel();
+        public LoginResponse_DTO? loginResponse { get; set; }=new LoginResponse_DTO();
     }
 }
